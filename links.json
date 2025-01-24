@@ -13,5 +13,10 @@
         "url": "page3.html",
         "name": "Page 3",
         "description": "Description for Page 3"
+    },
+    {
+        "url": "external",
+        "name": "External Resources",
+        "description": "Useful External Resources"
     }
 ]
