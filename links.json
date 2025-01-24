@@ -1,0 +1,17 @@
+[
+    {
+        "url": "skch0-cycloids-intro",
+        "name": "#0: Introduction to Cycloids",
+        "description": "Description for Page 1"
+    },
+    {
+        "url": "page2.html",
+        "name": "Page 2",
+        "description": "Description for Page 2"
+    },
+    {
+        "url": "page3.html",
+        "name": "Page 3",
+        "description": "Description for Page 3"
+    }
+]

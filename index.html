@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiments with Cycloid Curves</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+        .banner {
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 1.5em;
+        }
+        .main-content {
+            display: flex;
+            flex-grow: 1;
+        }
+        nav {
+            max-width: 200px;
+            width: 100%;
+            background-color: #f4f4f4;
+            padding: 10px;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 10px;
+        }
+        .main-nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .active-link {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner" id="banner-title">Experiments with Cycloid Curves</div>
+    <div class="main-content">
+        <nav class="main-nav">
+            <ul id="nav-list">
+                <!-- Navigation content will be populated here -->
+            </ul>
+        </nav>
+        <div class="content">
+            <iframe id="content-frame" src=""></iframe>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navList = document.getElementById('nav-list');
+            const contentFrame = document.getElementById('content-frame');
+            let activeLink = null;
+
+            function updatePermalink(url) {
+                window.location.hash = url;
+            }
+
+            function loadPage(url) {
+                contentFrame.src = url;
+                updatePermalink(url);
+            }
+
+            fetch('links.json')
+                .then(response => response.json())
+                .then(data => {
+                    const initialUrl = window.location.hash ? window.location.hash.substring(1) : data[0].url;
+                    loadPage(initialUrl);
+
+                    data.forEach(link => {
+                        const listItem = document.createElement('li');
+                        const anchor = document.createElement('a');
+                        anchor.href = `#${link.url}`;
+                        anchor.textContent = link.name;
+                        anchor.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            if (activeLink) {
+                                activeLink.classList.remove('active-link');
+                            }
+                            loadPage(link.url);
+                            activeLink = anchor;
+                            activeLink.classList.add('active-link');
+                        });
+                        listItem.appendChild(anchor);
+                        navList.appendChild(listItem);
+                    });
+
+                    activeLink = navList.querySelector(`a[href="#${initialUrl}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add('active-link');
+                    }
+                })
+                .catch(error => console.error('Error loading navigation links:', error));
+
+            contentFrame.addEventListener('load', function() {
+                const pageTitle = contentFrame.contentDocument.title;
+                document.title = `Experiments with Cycloid Curves (${pageTitle})`;
+                document.getElementById('banner-title').textContent = `Experiments with Cycloid Curves (${pageTitle})`;
+            });
+        });
+    </script>
+</body>
+</html>
