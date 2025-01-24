@@ -10,6 +10,7 @@
  */
 class CycloidWheel {
   constructor(
+    p,
     centerX,
     centerY,
     radius,
@@ -21,44 +22,50 @@ class CycloidWheel {
       rimPoint: [255, 100, 250],
     }
   ) {
+    this.p = p; // Store the p5 object
     this.centerX = centerX;
     this.centerY = centerY;
     this.radius = radius;
-    this.theta = radians(theta); // Convert theta to radians
+    this.theta = p.radians(theta); // Convert theta to radians using p5 method
     this.colours = colours; // Store the colours
   }
 
   draw() {
     // draw a circle in blue
-    stroke(...this.colours.circle);
-    strokeWeight(2);
-    noFill();
-    ellipse(this.centerX, this.centerY, this.radius * 2, this.radius * 2);
+    this.p.stroke(...this.colours.circle);
+    this.p.strokeWeight(2);
+    this.p.noFill();
+    this.p.ellipse(this.centerX, this.centerY, this.radius * 2, this.radius * 2);
 
     // draw a point at the center of the circle
-    fill(...this.colours.centerPoint);
-    ellipse(this.centerX, this.centerY, 5, 5);
+    this.p.fill(...this.colours.centerPoint);
+    this.p.ellipse(this.centerX, this.centerY, 5, 5);
 
     // draw the radius of the circle in red
-    stroke(...this.colours.radius);
-    strokeWeight(2);
+    this.p.stroke(...this.colours.radius);
+    this.p.strokeWeight(2);
     let radiusRimPoint = this.getRadiusRimPoint();
-    line(this.centerX, this.centerY, radiusRimPoint.x, radiusRimPoint.y);
+    this.p.line(this.centerX, this.centerY, radiusRimPoint.x, radiusRimPoint.y);
 
     // draw a point where the radius meets the circle
-    stroke(...this.colours.rimPoint);
-    fill(...this.colours.rimPoint);
-    ellipse(radiusRimPoint.x, radiusRimPoint.y, 5, 5);
+    this.p.stroke(...this.colours.rimPoint);
+    this.p.fill(...this.colours.rimPoint);
+    this.p.ellipse(radiusRimPoint.x, radiusRimPoint.y, 5, 5);
   }
 
   getRadiusRimPoint() {
     return {
-      x: this.centerX + this.radius * cos(this.theta),
-      y: this.centerY + this.radius * sin(this.theta),
+      x: this.centerX + this.radius * this.p.cos(this.theta),
+      y: this.centerY + this.radius * this.p.sin(this.theta),
     };
   }
 
   setTheta(theta) {
-    this.theta = radians(theta); // Convert theta to radians
+    this.theta = this.p.radians(theta); // Convert theta to radians using p5 method
+  }
+
+  rotate(delta_theta) {
+    this.theta += this.p.radians(delta_theta); // Update theta by delta_theta in radians using p5 method
+    this.centerX += this.radius * this.p.radians(delta_theta); // Update centerX based on the rotation
   }
 }
