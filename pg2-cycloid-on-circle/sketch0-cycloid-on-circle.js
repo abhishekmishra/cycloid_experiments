@@ -5,7 +5,7 @@ let cycloid_circle_sketch = function (p) {
     y: 100,
   };
   let outerCycloidRadius = 50;
-  let outerRotationSpeed = 180;
+  let outerRotationSpeed = 1800;
 
   let innerCycloidRadius = 20;
   let innerCycloidWheel;
@@ -13,13 +13,13 @@ let cycloid_circle_sketch = function (p) {
   let currentOuterRimPoint;
   let path = [];
 
-  let innerCycloidRadiusRatio = 0.10;
-  let innerCycloidRadiusIncrement = 0.05;
+  let innerCycloidRadiusRatio = 0.05;
+  let innerCycloidRadiusIncrement = 0.10;
 
-  let numRotations = 5;
+  let numRotations = 10;
 
   p.setup = function () {
-    let canvas = p.createCanvas(400, 200);
+    let canvas = p.createCanvas(600, 500);
     canvas.parent("sketch0-cycloid-on-circle");
 
     outerCycloidCenter = {
@@ -39,7 +39,7 @@ let cycloid_circle_sketch = function (p) {
     p.background(220);
 
     // rotate the outer wheel
-    let outerDeltaTheta = outerRotationSpeed * p.deltaTime / 1000;
+    let outerDeltaTheta = outerRotationSpeed * p.deltaTime / 10000;
     outerCycloidWheel.rotateInPlace(outerDeltaTheta);
 
     outerCycloidWheel.draw();
