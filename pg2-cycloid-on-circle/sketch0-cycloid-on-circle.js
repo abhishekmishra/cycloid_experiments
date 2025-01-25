@@ -16,7 +16,7 @@ let cycloid_circle_sketch = function (p) {
   let innerCycloidRadiusRatio = 0.10;
   let innerCycloidRadiusIncrement = 0.05;
 
-  let numRotations = 20;
+  let numRotations = 5;
 
   p.setup = function () {
     let canvas = p.createCanvas(400, 200);
