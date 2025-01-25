@@ -1,98 +1,134 @@
 let cycloid_circle_sketch = function (p) {
-  let cycloidWheel;
-  let theta;
+  let outerCycloidWheel;
+  let outerCycloidCenter = {
+    x: 200,
+    y: 100,
+  };
+  let outerCycloidRadius = 50;
+  let outerRotationSpeed = 180;
+
+  let innerCycloidRadius = 20;
+  let innerCycloidWheel;
+  let previousOuterRimPoint;
+  let currentOuterRimPoint;
   let path = [];
-  let pathCircleCenterX = p.width / 2;
-  let pathCircleCenterY = p.height / 2;
-  let pathCircleRadius = 80;
-  let startPointX = pathCircleCenterX;
-  let startPointY = pathCircleCenterY + pathCircleRadius;
-  let currentPointX = startPointX;
-  let currentPointY = startPointY;
-  let cycloidRadius = 25;
-  let speed = 10;
+
+  let innerCycloidRadiusRatio = 0.10;
+  let innerCycloidRadiusIncrement = 0.05;
+
+  let numRotations = 20;
 
   p.setup = function () {
     let canvas = p.createCanvas(400, 200);
     canvas.parent("sketch0-cycloid-on-circle");
 
-    pathCircleCenterX = p.width / 2;
-    pathCircleCenterY = p.height / 2;
-    startPointX = pathCircleCenterX;
-    startPointY = pathCircleCenterY + pathCircleRadius;
-    currentPointX = startPointX;
-    currentPointY = startPointY;
+    outerCycloidCenter = {
+      x: p.width / 2,
+      y: p.height / 2,
+    }
 
-    p.resetWheel();
+    outerCycloidRadius = p.min(p.width, p.height) / 2 - 10;
+
+    innerCycloidRadius = outerCycloidRadius * innerCycloidRadiusRatio;
+
+    p.resetOuterWheel();
+    p.resetInnerWheel();
   };
 
   p.draw = function () {
     p.background(220);
 
-    // Draw a circle for the path with the given center and radius
-    p.stroke(0);
-    p.noFill();
-    p.strokeWeight(2);
-    p.circle(pathCircleCenterX, pathCircleCenterY, pathCircleRadius * 2);
+    // rotate the outer wheel
+    let outerDeltaTheta = outerRotationSpeed * p.deltaTime / 1000;
+    outerCycloidWheel.rotateInPlace(outerDeltaTheta);
 
-    // The distance travelled along the circular path
-    // is the speed multiplied by the delta time
-    let distanceOnCircle = (speed * p.deltaTime) / 100;
+    outerCycloidWheel.draw();
 
-    // This distance corresponds to an angle in radians
-    // as a raiio of the circle circumference
-    let angleInRadians = distanceOnCircle / pathCircleRadius;
+    currentOuterRimPoint = outerCycloidWheel.getRadiusRimPoint();
 
-    // The angle in degrees
-    let angleInDegrees = p.degrees(angleInRadians);
-    // console.log(p.sin(angleInDegrees));
+    let newCenter = {
+      x: currentOuterRimPoint.x - innerCycloidRadius * p.cos(outerCycloidWheel.theta),
+      y: currentOuterRimPoint.y - innerCycloidRadius * p.sin(outerCycloidWheel.theta),
+    }
 
-    // Move the distance along the circle
-    currentPointX = currentPointX + distanceOnCircle * p.cos(angleInRadians);
-    currentPointY = currentPointY + distanceOnCircle * p.sin(angleInRadians);
+    let oldCenter = innerCycloidWheel.getCenter();
 
-    // get the distance travelled
-    // Move the wheel along the line
-    cycloidWheel.rollOnPath(distanceOnCircle, angleInDegrees);
+    // calculate distance and angle between the current and previous center points
+    let distance = p.dist(
+      newCenter.x,
+      newCenter.y,
+      oldCenter.x,
+      oldCenter.y
+    );
 
-    // get the cycloid rim point and add it to the path
-    path.push(cycloidWheel.getRadiusRimPoint());
+    let angleInDegrees = p.degrees(p.atan2(
+      currentOuterRimPoint.y - previousOuterRimPoint.y,
+      currentOuterRimPoint.x - previousOuterRimPoint.x
+    ));
 
-    // draw the path
-    // magenta colour
-    p.stroke(255, 0, 255);
-    p.strokeWeight(2);
+    // roll the inner wheel on the path traced by the outer wheel
+    innerCycloidWheel.rollOnPath(distance, angleInDegrees);
+
+    // update the previous outer rim point
+    previousOuterRimPoint = currentOuterRimPoint;
+
+    // draw the inner wheel
+    innerCycloidWheel.draw();
+
+    // get the rim point of the inner wheel
+    let innerRimPoint = innerCycloidWheel.getRadiusRimPoint();
+
+    path.push(innerRimPoint);
+
+    // draw the path traced by the inner wheel
+    p.stroke(0, 200, 100);
+    p.strokeWeight(3);
     p.noFill();
     p.beginShape();
-    for (let i = 0; i < path.length; i++) {
-      p.vertex(path[i].x, path[i].y);
-    }
+    path.forEach(point => {
+      p.vertex(point.x, point.y);
+    });
     p.endShape();
 
-    cycloidWheel.draw();
+    // if the outer wheel has completed numRotations full rotations, reset the wheels
+    if (p.degrees(outerCycloidWheel.theta) >= 360 * numRotations) {
+      innerCycloidRadiusRatio += innerCycloidRadiusIncrement;
+      innerCycloidRadius = outerCycloidRadius * innerCycloidRadiusRatio;
 
-    // draw dot at the current point
-    p.stroke(200, 255, 0);
-    p.fill(200, 255, 0);
-    p.ellipse(currentPointX, currentPointY, 2, 2);
-
-    // Reset position and rotation if the wheel goes past the canvas
-    if (cycloidWheel.centerX > p.width) {
-      p.resetWheel();
+      p.resetOuterWheel();
+      p.resetInnerWheel();
     }
+
+    // draw the rotation number in the bottom right corner
+    p.fill(0);
+    p.noStroke();
+    p.textSize(12);
+    p.textAlign(p.RIGHT, p.BOTTOM);
+    // draw the inner radius ratio just below the rotation number
+    p.text(`Inner Radius Ratio: ${innerCycloidRadiusRatio.toFixed(2)}`, p.width - 10, p.height - 10);
+    p.text(`Rotation: ${p.floor(p.degrees(outerCycloidWheel.theta) / 360)}`, p.width - 10, p.height - 30);
   };
 
-  p.resetWheel = function () {
-    let centerX = startPointX;
-    let centerY = startPointY - cycloidRadius;
-    let radius = cycloidRadius;
-    theta = -90; // Initial theta in degrees
+  p.resetOuterWheel = function () {
+    theta = 0; // Initial theta in degrees
+    outerCycloidWheel = new CycloidWheel(p, outerCycloidCenter.x, outerCycloidCenter.y, outerCycloidRadius, theta);
+  };
 
-    cycloidWheel = new CycloidWheel(p, centerX, centerY, radius, theta);
+  p.resetInnerWheel = function () {
+    let outerRimPoint = outerCycloidWheel.getRadiusRimPoint();
+
+    // center is innerCycloidRadius away from the outer rim point
+    // towards the outerCyloidCenter   
+    let center = {
+      x: outerRimPoint.x - innerCycloidRadius * p.cos(outerCycloidWheel.theta),
+      y: outerRimPoint.y - innerCycloidRadius * p.sin(outerCycloidWheel.theta),
+    };
+
+    innerCycloidWheel = new CycloidWheel(p, center.x, center.y, innerCycloidRadius, 0);
+
+    previousOuterRimPoint = outerRimPoint;
 
     path = [];
-    currentPointX = startPointX;
-    currentPointY = startPointY;
   };
 };
 

@@ -68,7 +68,7 @@ class CycloidWheel {
 
   setTheta(theta) {
     this.theta = this.p.radians(theta); // Convert theta to radians using p5 method
-    this.emitEvent('parametersChanged', { theta: this.theta });
+    this.emitEvent('changed', { theta: this.theta });
   }
 
   /**
@@ -79,7 +79,12 @@ class CycloidWheel {
   rotate(delta_theta) {
     this.theta += this.p.radians(delta_theta); // Update theta by delta_theta in radians using p5 method
     this.centerX += this.radius * this.p.radians(delta_theta); // Update centerX based on the rotation
-    this.emitEvent('parametersChanged', { theta: this.theta, centerX: this.centerX });
+    this.emitEvent('changed', { theta: this.theta, centerX: this.centerX });
+  }
+
+  rotateInPlace(delta_theta) {
+    this.theta += this.p.radians(delta_theta); // Update theta by delta_theta in radians using p5 method
+    this.emitEvent('changed', { theta: this.theta });
   }
 
   /**
@@ -93,7 +98,7 @@ class CycloidWheel {
     let dx = distance * this.p.cos(this.p.radians(direction));
     let dy = distance * this.p.sin(this.p.radians(direction));
     this.centerX += dx;
-    this.centerY += dy;
+    this.centerY += dy;  
 
     // Since the path distance should be equal to the section of the circle that rolls along the path,
     // we know the angle of the wheel should change by the same amount.
@@ -102,7 +107,7 @@ class CycloidWheel {
     let angleRadians = distance/circumference * 2 * Math.PI;
     this.theta += angleRadians;
 
-    this.emitEvent('parametersChanged', { centerX: this.centerX, centerY: this.centerY, theta: this.theta });
+    this.emitEvent('changed', { centerX: this.centerX, centerY: this.centerY, theta: this.theta });
   }
 
   emitEvent(eventName, detail) {
@@ -116,5 +121,9 @@ class CycloidWheel {
 
   removeEventListener(type, listener) {
     this.eventTarget.removeEventListener(type, listener);
+  }
+
+  getCenter() {
+    return { x: this.centerX, y: this.centerY };
   }
 }
