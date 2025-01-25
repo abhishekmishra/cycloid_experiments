@@ -28,6 +28,7 @@ class CycloidWheel {
     this.radius = radius;
     this.theta = p.radians(theta); // Convert theta to radians using p5 method
     this.colours = colours; // Store the colours
+    this.eventTarget = new EventTarget(); // Create an EventTarget instance
   }
 
   draw() {
@@ -67,6 +68,7 @@ class CycloidWheel {
 
   setTheta(theta) {
     this.theta = this.p.radians(theta); // Convert theta to radians using p5 method
+    this.emitEvent('parametersChanged', { theta: this.theta });
   }
 
   /**
@@ -77,6 +79,7 @@ class CycloidWheel {
   rotate(delta_theta) {
     this.theta += this.p.radians(delta_theta); // Update theta by delta_theta in radians using p5 method
     this.centerX += this.radius * this.p.radians(delta_theta); // Update centerX based on the rotation
+    this.emitEvent('parametersChanged', { theta: this.theta, centerX: this.centerX });
   }
 
   /**
@@ -98,5 +101,20 @@ class CycloidWheel {
     let circumference = 2 * Math.PI * this.radius;
     let angleRadians = distance/circumference * 2 * Math.PI;
     this.theta += angleRadians;
+
+    this.emitEvent('parametersChanged', { centerX: this.centerX, centerY: this.centerY, theta: this.theta });
+  }
+
+  emitEvent(eventName, detail) {
+    const event = new CustomEvent(eventName, { detail });
+    this.eventTarget.dispatchEvent(event);
+  }
+
+  addEventListener(type, listener) {
+    this.eventTarget.addEventListener(type, listener);
+  }
+
+  removeEventListener(type, listener) {
+    this.eventTarget.removeEventListener(type, listener);
   }
 }
