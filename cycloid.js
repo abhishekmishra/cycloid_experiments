@@ -35,7 +35,12 @@ class CycloidWheel {
     this.p.stroke(...this.colours.circle);
     this.p.strokeWeight(2);
     this.p.noFill();
-    this.p.ellipse(this.centerX, this.centerY, this.radius * 2, this.radius * 2);
+    this.p.ellipse(
+      this.centerX,
+      this.centerY,
+      this.radius * 2,
+      this.radius * 2
+    );
 
     // draw a point at the center of the circle
     this.p.fill(...this.colours.centerPoint);
@@ -64,8 +69,34 @@ class CycloidWheel {
     this.theta = this.p.radians(theta); // Convert theta to radians using p5 method
   }
 
+  /**
+   * Rotate the wheel by delta_theta degrees. The rotation causes the wheel to move along the cycloid path.
+   * In the current implementation we assume the wheel is rolling along the x-axis.
+   * @param {Number} delta_theta amount of rotation in degrees
+   */
   rotate(delta_theta) {
     this.theta += this.p.radians(delta_theta); // Update theta by delta_theta in radians using p5 method
     this.centerX += this.radius * this.p.radians(delta_theta); // Update centerX based on the rotation
+  }
+
+  /**
+   * Roll the curve along the path by a small distance.
+   * The section of the path along which the curve rolls is a straight line. The distance to move is given by the distance parameter. and the direction of the path is given by the direction parameter.
+   * 
+   * @param {Number} distance Small distance to roll the curve along the path
+   * @param {Number} direction The angle of the path from the x-axis in degrees
+   */
+  rollOnPath(distance, direction) {
+    let dx = distance * this.p.cos(this.p.radians(direction));
+    let dy = distance * this.p.sin(this.p.radians(direction));
+    this.centerX += dx;
+    this.centerY += dy;
+
+    // Since the path distance should be equal to the section of the circle that rolls along the path,
+    // we know the angle of the wheel should change by the same amount.
+    // so we update the theta by the same amount.
+    let circumference = 2 * Math.PI * this.radius;
+    let angleRadians = distance/circumference * 2 * Math.PI;
+    this.theta += angleRadians;
   }
 }
