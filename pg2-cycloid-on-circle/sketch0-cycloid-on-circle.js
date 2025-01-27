@@ -56,6 +56,19 @@ class CycloidOnCycloid extends CycloidWheel {
   resetPath() {
     this.path = [];
   }
+
+  static createInnerWheel(p, outerCycloidWheel, innerCycloidRadius) {
+    let outerRimPoint = outerCycloidWheel.getRadiusRimPoint();
+
+    let center = {
+      x: outerRimPoint.x - innerCycloidRadius * p.cos(outerCycloidWheel.theta),
+      y: outerRimPoint.y - innerCycloidRadius * p.sin(outerCycloidWheel.theta),
+    };
+
+    let innerCycloidWheel = new CycloidOnCycloid(p, outerCycloidWheel, center.x, center.y, innerCycloidRadius, 0);
+    innerCycloidWheel.resetPath();
+    return innerCycloidWheel;
+  }
 }
 
 let cycloid_circle_sketch = function (p) {
@@ -123,16 +136,7 @@ let cycloid_circle_sketch = function (p) {
   };
 
   p.resetInnerWheel = function () {
-    let outerRimPoint = outerCycloidWheel.getRadiusRimPoint();
-
-    let center = {
-      x: outerRimPoint.x - innerCycloidRadius * p.cos(outerCycloidWheel.theta),
-      y: outerRimPoint.y - innerCycloidRadius * p.sin(outerCycloidWheel.theta),
-    };
-
-    innerCycloidWheel = new CycloidOnCycloid(p, outerCycloidWheel, center.x, center.y, innerCycloidRadius, 0);
-
-    innerCycloidWheel.resetPath();
+    innerCycloidWheel = CycloidOnCycloid.createInnerWheel(p, outerCycloidWheel, innerCycloidRadius);
   };
 };
 
